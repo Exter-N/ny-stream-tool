@@ -1,0 +1,1 @@
+export const isObs = location.hash.includes('obs');

@@ -1,0 +1,9 @@
+dist/
+images/
+sounds/
+/data/
+/node_modules/
+*.local
+*.local.*
+local.*
+/.env
