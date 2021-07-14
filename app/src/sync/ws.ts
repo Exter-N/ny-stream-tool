@@ -6,7 +6,7 @@ import { sounds, soundsTriggerOnChange } from "./sounds";
 import api from "../api";
 import MulticastCallback from "../../../util/multicast-callback";
 
-const ws = autoWebSocket('ws://' + location.hostname + ':9243/', undefined, ws => {
+const ws = autoWebSocket('ws://' + (location.hostname || 'localhost') + ':9243/', undefined, ws => {
     ws.addEventListener('message', ev => {
         const msg = JSON.parse(ev.data) as Message<ServerToClient>;
         switch (msg.method) {
