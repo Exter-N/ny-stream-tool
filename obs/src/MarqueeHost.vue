@@ -15,7 +15,7 @@ import { arrayDeleteFound } from "../../util/array";
 import MarqueeItem, { RunningMarquee } from './MarqueeItem.vue';
 import settings, { settingsTriggerOnChange } from './sync/settings';
 
-const SPEED = 75;
+const SPEED = 100;
 
 const updateMarquee = registerMulticastTickFunction('marquee', {
     before: ['updateTriangleColors'],
@@ -32,7 +32,6 @@ export default defineComponent(useMulticastCallbacks({
         MarqueeItem,
     },
     data() {
-        (window as any).MarqueeHost = this;
         return {
             nextRunningId: 1 as number,
             marqueeOffset: 0 as number,

@@ -1,8 +1,8 @@
 import { LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, ShaderMaterial, Texture } from "three";
 import scene from ".";
-import { fetchTexture } from "../../../util/texture";
-import { registerTickFunction } from "../renderer/tick";
-import settings from "../sync/settings";
+import { fetchTexture } from "../../../../util/texture";
+import { registerTickFunction } from "../../renderer/tick";
+import settings from "../../sync/settings";
 
 const WIDTH = 203;
 const HEIGHT = 161.75;
@@ -139,8 +139,6 @@ fetchTexture('./images/avatar-rc.png').then(tex => {
 });
 
 const mesh = new Mesh(new PlaneGeometry(1, 1), material);
-
-(window as any).avatarMesh = mesh;
 
 scene.add(mesh);
 

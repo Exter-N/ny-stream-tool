@@ -2,8 +2,8 @@
     <div class="app-container">
         <nav>
             <ul class="tabs">
-                <li @click="activeTab = 'color'" :class="{ selected: activeTab == 'color' }">Couleur</li>
-                <li @click="activeTab = 'layout'" :class="{ selected: activeTab == 'layout' }">Disposition</li>
+                <li @click="activeTab = 'triangles'" :class="{ selected: activeTab == 'triangles' }">Mer de triangles</li>
+                <li @click="activeTab = 'curtain'" :class="{ selected: activeTab == 'curtain' }">Rideau</li>
                 <li @click="activeTab = 'marquees'" :class="{ selected: activeTab == 'marquees' }">Messages défilants</li>
                 <li @click="activeTab = 'title'" :class="{ selected: activeTab == 'title' }">Titre</li>
                 <li @click="activeTab = 'chat'" :class="{ selected: activeTab == 'chat' }">Chat</li>
@@ -12,8 +12,8 @@
             </ul>
         </nav>
         <main>
-            <color-pane :class="{ hidden: activeTab != 'color' }"></color-pane>
-            <layout-pane :class="{ hidden: activeTab != 'layout' }"></layout-pane>
+            <triangles-pane :class="{ hidden: activeTab != 'triangles' }"></triangles-pane>
+            <curtain-pane :class="{ hidden: activeTab != 'curtain' }"></curtain-pane>
             <marquees-pane :class="{ hidden: activeTab != 'marquees' }"></marquees-pane>
             <title-pane :class="{ hidden: activeTab != 'title' }"></title-pane>
             <chat-pane :class="{ hidden: activeTab != 'chat' }"></chat-pane>
@@ -26,8 +26,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import ChatPane from './ChatPane.vue';
-import ColorPane from './ColorPane.vue';
-import LayoutPane from './LayoutPane.vue';
+import TrianglesPane from './TrianglesPane.vue';
+import CurtainPane from './CurtainPane.vue';
 import MarqueesPane from './MarqueesPane.vue';
 import SoundsPane from './SoundsPane.vue';
 import SystemPane from './SystemPane.vue';
@@ -36,8 +36,8 @@ import TitlePane from './TitlePane.vue';
 export default defineComponent({
     components: {
         ChatPane,
-        ColorPane,
-        LayoutPane,
+        TrianglesPane,
+        CurtainPane,
         MarqueesPane,
         SoundsPane,
         SystemPane,
@@ -45,7 +45,7 @@ export default defineComponent({
     },
     data() {
         return {
-            activeTab: 'color',
+            activeTab: 'triangles',
         };
     },
 });

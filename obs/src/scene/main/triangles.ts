@@ -1,13 +1,14 @@
-import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial } from 'three';
+import { BufferGeometry, Mesh, MeshBasicMaterial } from 'three';
 import scene from '.';
-import { registerTickFunction } from '../renderer/tick';
-import { mix, unmix } from '../../../util/math/mix';
-import { smootherstep } from '../../../util/math/step';
-import { lab2rgb } from '../../../util/rgb-lab';
-import settings from '../sync/settings';
-import { saturate } from '../../../util/math/saturate';
-import { getElementsByClassName } from '../../../util/style-observer';
-import { getElementMatrix } from '../../../util/element-matrix';
+import { registerTickFunction } from '../../renderer/tick';
+import { mix, unmix } from '../../../../util/math/mix';
+import { smootherstep } from '../../../../util/math/step';
+import { lab2rgb } from '../../../../util/rgb-lab';
+import settings from '../../sync/settings';
+import { saturate } from '../../../../util/math/saturate';
+import { getElementsByClassName } from '../../../../util/style-observer';
+import { getElementMatrix } from '../../../../util/element-matrix';
+import { TypedBufferAttribute, createBufferAttribute } from '../../../../util/buffer-attr';
 
 const WIDTH = 24;
 const HEIGHT = 9;
@@ -17,12 +18,6 @@ const IW = 1 / WIDTH;
 const IH = 1 / HEIGHT;
 const IW_2 = IW / 2;
 const IH_2 = IH / 2;
-
-export type TypedBufferAttribute<T extends ArrayLike<number>> = BufferAttribute & { array: T; };
-
-function createBufferAttribute<T extends ArrayLike<number>>(array: T, itemSize: number): TypedBufferAttribute<T> {
-    return new BufferAttribute(array, itemSize) as TypedBufferAttribute<T>;
-}
 
 interface GeometryBuildResult {
     geometry: BufferGeometry;
@@ -163,11 +158,11 @@ function mixField(field: Float32Array, from: Float32Array, to: Float32Array, a: 
     }
 }
 
-const material = new MeshBasicMaterial({ wireframe: false, vertexColors: true, transparent: true });
+const material = new MeshBasicMaterial({ vertexColors: true, transparent: true });
 (material as any).vertexAlphas = true;
 
 const mesh = new Mesh(geometry, material);
-mesh.position.z = -1;
+mesh.position.z = -0.1;
 
 scene.add(mesh);
 

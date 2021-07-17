@@ -1,1 +1,1 @@
-export const isObs = location.hash.includes('obs');
+export const isObs = navigator.userAgent.includes(' OBS/');

@@ -143,3 +143,62 @@ section.has-h3 > h3 {
     background: linear-gradient(to bottom, #18181b, rgba(24, 24, 27, 0));
     text-shadow: 0 -2px 1px #18181b, 0 2px 1px #18181b, -2px 0 1px #18181b, 2px 0 1px #18181b, 1px 1px 1px #18181b, -1px 1px 1px #18181b, 1px -1px 1px #18181b, -1px -1px 1px #18181b;
 }
+
+.columns {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.columns > .separator {
+    width: 0;
+    align-self: stretch;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 0 0.5em;
+}
+
+.vertical {
+    text-align: center;
+}
+
+.vertical-range-host {
+    width: 16px;
+    height: 150px;
+    display: inline-block;
+}
+
+input[type="range"] {
+    transform-origin: center;
+    width: 150px;
+    height: 16px;
+}
+
+input[type="range"].reverse {
+    transform: scaleX(-1);
+}
+
+.vertical-range-host > input[type="range"] {
+    margin: 67px -67px;
+    transform: rotate(-90deg);
+}
+
+.vertical-range-host > input[type="range"].reverse {
+    transform: rotate(90deg);
+}
+
+.number3, .number4 {
+    font-family: monospace;
+    display: inline-block;
+    text-align: right;
+    height: 1.2em;
+    vertical-align: middle;
+}
+
+.number3 {
+    width: 2em;
+}
+
+.number4 {
+    width: 3em;
+}

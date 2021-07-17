@@ -1,8 +1,7 @@
 import './renderer';
-import './scene/triangles';
-import './scene/avatar';
-import './sync/ws';
-import './sync/avatar';
+import './scene/main/triangles';
+import './scene/main/avatar';
+import './sync';
 import { show as showStats } from './stats';
 import { createApp } from 'vue';
 import App from './App.vue';

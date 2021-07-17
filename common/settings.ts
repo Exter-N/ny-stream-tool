@@ -52,6 +52,13 @@ export interface Settings {
     periodicMessages: PeriodicMessage[];
     quotes: Quote[];
     nextQuoteId: number;
+    curtainLeftX: number;
+    curtainRightX: number;
+    curtainLightX: number;
+    curtainLightIntensity: number;
+    curtainWindMaxStrength: number;
+    curtainWindAngleOffset: number;
+    curtainOpacity: number;
 }
 
 export function marqueeEquals(left: Marquee, right: Marquee): boolean {
@@ -98,5 +105,12 @@ export function getBlankSettings(): Settings {
         periodicMessages: [],
         quotes: [],
         nextQuoteId: 1,
+        curtainLeftX: -3200 / 9,
+        curtainRightX: 3200 / 9,
+        curtainLightX: -500,
+        curtainLightIntensity: 15000000,
+        curtainWindMaxStrength: 3,
+        curtainWindAngleOffset: 0,
+        curtainOpacity: 1,
     };
 }
