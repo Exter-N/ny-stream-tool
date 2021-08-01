@@ -16,12 +16,12 @@
         <div>
             <div class="columns">
                 <div>
-                    <div class="horizontal"><input type="range" v-model="left" min="0" max="1" step="0.01" /> <span class="number3">{{ Math.round(left * 100) }}</span> %</div>
-                    <div class="horizontal"><input type="range" class="reverse" v-model="invRight" min="0" max="1" step="0.01" /> <span class="number3">{{ Math.round(invRight * 100) }}</span> %</div>
+                    <div class="horizontal"><input type="range" v-model="left" min="0" max="1" step="0.01" /> <span class="number3">{{ Math.round(left * 100) }}</span> % <button type="button" :class="{ muted: !snapLeft }" @click="snapLeft = !snapLeft" title="Ancrer"><icon-grid /></button></div>
+                    <div class="horizontal"><input type="range" class="reverse" v-model="invRight" min="0" max="1" step="0.01" /> <span class="number3">{{ Math.round(invRight * 100) }}</span> % <button type="button" :class="{ muted: !snapRight }" @click="snapRight = !snapRight" title="Ancrer"><icon-grid /></button></div>
                 </div>
                 <div class="separator"></div>
-                <div class="vertical"><div class="vertical-range-host"><input type="range" class="reverse" v-model="invTop" min="0" max="1" step="0.01" /></div><div><span class="number3">{{ Math.round(invTop * 100) }}</span> %</div></div>
-                <div class="vertical"><div class="vertical-range-host"><input type="range" v-model="bottom" min="0" max="1" step="0.01" /></div><div><span class="number3">{{ Math.round(bottom * 100) }}</span> %</div></div>
+                <div class="vertical"><div class="vertical-range-host"><input type="range" class="reverse" v-model="invTop" min="0" max="1" step="0.01" /></div><div><span class="number3">{{ Math.round(invTop * 100) }}</span> %</div><div><button type="button" :class="{ muted: !snapTop }" @click="snapTop = !snapTop" title="Ancrer"><icon-grid /></button></div></div>
+                <div class="vertical"><div class="vertical-range-host"><input type="range" v-model="bottom" min="0" max="1" step="0.01" /></div><div><span class="number3">{{ Math.round(bottom * 100) }}</span> %</div><div><button type="button" :class="{ muted: !snapBottom }" @click="snapBottom = !snapBottom" title="Ancrer"><icon-grid /></button></div></div>
             </div>
             <hr />
             <div>
@@ -37,6 +37,7 @@ import lab50 from './lab50';
 import settings, { setSetting, setSettings } from './sync/settings';
 import { useSettings } from './sync/vue-settings';
 import { rpc } from './sync/ws';
+import IconGrid from './icons/Grid.vue';
 
 export default defineComponent(useSettings({
     activeA: 'chromaA',
@@ -45,8 +46,15 @@ export default defineComponent(useSettings({
     top: 'top',
     right: 'right',
     bottom: 'bottom',
+    snapLeft: 'snapLeft',
+    snapTop: 'snapTop',
+    snapRight: 'snapRight',
+    snapBottom: 'snapBottom',
     avatar: 'avatar',
 }, {
+    components: {
+        IconGrid,
+    },
     data() {
         return {
             pointerA: null as (number | null),
@@ -100,6 +108,26 @@ export default defineComponent(useSettings({
             const nValue = Number(value);
             if (nValue !== settings.bottom) {
                 setSetting('bottom', nValue);
+            }
+        },
+        snapLeft(value: boolean) {
+            if (value !== settings.snapLeft) {
+                setSetting('snapLeft', value);
+            }
+        },
+        snapTop(value: boolean) {
+            if (value !== settings.snapTop) {
+                setSetting('snapTop', value);
+            }
+        },
+        snapRight(value: boolean) {
+            if (value !== settings.snapRight) {
+                setSetting('snapRight', value);
+            }
+        },
+        snapBottom(value: boolean) {
+            if (value !== settings.snapBottom) {
+                setSetting('snapBottom', value);
             }
         },
         avatar(value: boolean) {

@@ -40,6 +40,10 @@ export interface Settings {
     bottom: number;
     left: number;
     right: number;
+    snapTop: boolean;
+    snapBottom: boolean;
+    snapLeft: boolean;
+    snapRight: boolean;
     avatar: boolean;
     marqueesRight: number;
     marquees: Marquee[];
@@ -93,6 +97,10 @@ export function getBlankSettings(): Settings {
         bottom: 0.1,
         left: 0,
         right: 1,
+        snapTop: false,
+        snapBottom: false,
+        snapLeft: false,
+        snapRight: false,
         marqueesRight: 208,
         avatar: true,
         marquees: [],

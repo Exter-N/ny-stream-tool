@@ -4,11 +4,12 @@ import { registerTickFunction } from '../../renderer/tick';
 import { mix, unmix } from '../../../../util/math/mix';
 import { smootherstep } from '../../../../util/math/step';
 import { lab2rgb } from '../../../../util/rgb-lab';
-import settings from '../../sync/settings';
+import settings, { settingsAddOnChange } from '../../sync/settings';
 import { saturate } from '../../../../util/math/saturate';
 import { getElementsByClassName } from '../../../../util/style-observer';
 import { getElementMatrix } from '../../../../util/element-matrix';
 import { TypedBufferAttribute, createBufferAttribute } from '../../../../util/buffer-attr';
+import RangeMap from '../../../../util/range-map';
 
 const WIDTH = 24;
 const HEIGHT = 9;
@@ -84,32 +85,74 @@ class GeometryBuilder {
     }
 }
 
-const movingBase = new Float32Array(((WIDTH * 2 - 1) * (HEIGHT - 1) + WIDTH) * 2);
+function rangeMapInterpolate(key: number, lowerKey: number, upperKey: number, lowerValue: number, upperValue: number): number {
+    return mix(lowerValue, upperValue, unmix(lowerKey, upperKey, key));
+}
+const xAnchors = new RangeMap(rangeMapInterpolate);
+const yAnchors = new RangeMap(rangeMapInterpolate);
 
-{
-    let n = 0;
-    for (let i = 0; i < HEIGHT - 1; ++i) {
-        const y = i * IH;
-        for (let j = 0; j < WIDTH; ++j) {
-            const x = j * IW;
-            movingBase[n++] = x + IW_2;
-            movingBase[n++] = y + IH_2;
+function updateXAnchors(): void {
+    xAnchors.clear();
+    xAnchors.set(0, 0);
+    xAnchors.set(WIDTH * 2, 1);
+    if (settings.snapLeft) {
+        const keyF = settings.left * (WIDTH * 2);
+        let key = Math.round(keyF);
+        if (0 === key) {
+            key = Math.ceil(keyF);
         }
-        for (let j = 0; j < WIDTH - 1; ++j) {
-            const x = j * IW;
-            movingBase[n++] = x + IW;
-            movingBase[n++] = y + IH;
-        }
+        xAnchors.set(key, settings.left);
+        xAnchors.set(key + 1, settings.left);
     }
-    {
-        const y = (HEIGHT - 1) * IH;
-        for (let j = 0; j < WIDTH; ++j) {
-            const x = j * IW;
-            movingBase[n++] = x + IW_2;
-            movingBase[n++] = y + IH_2;
+    if (settings.snapRight) {
+        const keyF = settings.right * (WIDTH * 2);
+        let key = Math.round(keyF);
+        if (WIDTH * 2 === key) {
+            key = Math.floor(keyF);
         }
+        xAnchors.set(key, settings.right);
+        xAnchors.set(key - 1, settings.right);
     }
 }
+
+function updateYAnchors(): void {
+    yAnchors.clear();
+    yAnchors.set(0, 0);
+    yAnchors.set(HEIGHT * 2, 1);
+    if (settings.snapBottom) {
+        const keyF = settings.bottom * (HEIGHT * 2);
+        let key = Math.round(keyF);
+        if (0 === key) {
+            key = Math.ceil(keyF);
+        }
+        yAnchors.set(key, settings.bottom);
+    }
+    if (settings.snapTop) {
+        const keyF = settings.top * (HEIGHT * 2);
+        let key = Math.round(keyF);
+        if (HEIGHT * 2 === key) {
+            key = Math.floor(keyF);
+        }
+        yAnchors.set(key, settings.top);
+    }
+}
+
+settingsAddOnChange('left', updateXAnchors);
+settingsAddOnChange('right', updateXAnchors);
+settingsAddOnChange('snapLeft', updateXAnchors);
+settingsAddOnChange('snapRight', updateXAnchors);
+
+settingsAddOnChange('bottom', updateYAnchors);
+settingsAddOnChange('top', updateYAnchors);
+settingsAddOnChange('snapBottom', updateYAnchors);
+settingsAddOnChange('snapTop', updateYAnchors);
+
+updateXAnchors();
+updateYAnchors();
+
+const movingBase = new Float32Array(((WIDTH * 2 - 1) * (HEIGHT - 1) + WIDTH) * 2);
+
+generateDisturbedField(movingBase, 0);
 
 let t = performance.now();
 let movingFrom = new Float32Array(movingBase);
@@ -139,16 +182,30 @@ for (let i = 0; i < HEIGHT; ++i) {
 const { geometry, positions, colors, indices } = builder.build();
 const positionsBase = new Float32Array(positions.array);
 
-function generateDisturbedField(field: Float32Array, base: Float32Array): void {
+function generateDisturbedField(field: Float32Array, amplitude: number = 1 / 3): void {
     for (let i = 0; i < field.length; i += 2) {
-        let xOff: number;
-        let yOff: number;
-        do {
-            xOff = Math.random() * 2 - 1;
-            yOff = Math.random() * 2 - 1;
-        } while (xOff * xOff + yOff * yOff > 1);
-        field[i    ] = base[i    ] + xOff * IW / 6;
-        field[i + 1] = base[i + 1] + yOff * IH / 6;
+        const iXR = (i / 2) % (WIDTH * 2 - 1);
+        const iYR = 0 | ((i / 2) / (WIDTH * 2 - 1));
+        const iX = iXR * 2 % (WIDTH * 2 - 1) + 1;
+        const iY = iYR * 2 + ((iXR < WIDTH) ? 1 : 2);
+        const xQuery = xAnchors.query(iX);
+        const yQuery = yAnchors.query(iY);
+        if (null == xQuery || null == yQuery) {
+            throw new Error("Out of bounds anchor query " + iX + ", " + iY + " (" + (i / 2) + ")");
+        }
+        if (xQuery.exact || yQuery.exact) {
+            field[i    ] = xQuery.value;
+            field[i + 1] = yQuery.value;
+        } else {
+            let xOff: number;
+            let yOff: number;
+            do {
+                xOff = Math.random() * 2 - 1;
+                yOff = Math.random() * 2 - 1;
+            } while (xOff * xOff + yOff * yOff > 1);
+            field[i    ] = xQuery.value + xOff * amplitude * (xQuery.upperValue - xQuery.lowerValue) / (xQuery.upperKey - xQuery.lowerKey);
+            field[i + 1] = yQuery.value + yOff * amplitude * (yQuery.upperValue - yQuery.lowerValue) / (yQuery.upperKey - yQuery.lowerKey);
+        }
     }
 }
 
@@ -166,15 +223,15 @@ mesh.position.z = -0.1;
 
 scene.add(mesh);
 
-generateDisturbedField(movingFrom, movingBase);
-generateDisturbedField(movingTo, movingBase);
+generateDisturbedField(movingFrom);
+generateDisturbedField(movingTo);
 
 registerTickFunction('updateTrianglePositions', (time: number) => {
     if ((0 | (t / PERIOD)) !== (0 | (time / PERIOD))) {
         const tmp = movingFrom;
         movingFrom = movingTo;
         movingTo = tmp;
-        generateDisturbedField(movingTo, movingBase);
+        generateDisturbedField(movingTo);
     }
     t = time;
     mixField(moving, movingFrom, movingTo, smootherstep((time % PERIOD) / PERIOD));
@@ -183,6 +240,16 @@ registerTickFunction('updateTrianglePositions', (time: number) => {
         if (indices[i] >= 0) {
             pos[i * 3    ] = moving[indices[i] * 2    ];
             pos[i * 3 + 1] = moving[indices[i] * 2 + 1];
+        } else {
+            const iX = 0 | Math.round(positionsBase[i * 3    ] * WIDTH * 2);
+            const iY = 0 | Math.round(positionsBase[i * 3 + 1] * HEIGHT * 2);
+            const xQuery = xAnchors.query(iX);
+            const yQuery = yAnchors.query(iY);
+            if (null == xQuery || null == yQuery) {
+                throw new Error("Out of bounds anchor query " + iX + ", " + iY);
+            }
+            pos[i * 3    ] = xQuery.value;
+            pos[i * 3 + 1] = yQuery.value;
         }
     }
     positions.needsUpdate = true;
@@ -280,12 +347,12 @@ class TransmittanceField {
         return transmittance;
     }
     private lrAtX(x: number): number {
-        return saturate(unmix(settings.left - 0.05, settings.left, x))
-             * saturate(unmix(settings.right + 0.05, settings.right, x));
+        return (settings.snapLeft ? ((x > settings.left) ? 1 : 0) : saturate(unmix(settings.left - 0.05, settings.left, x)))
+             * (settings.snapRight ? ((x < settings.right) ? 1 : 0) : saturate(unmix(settings.right + 0.05, settings.right, x)));
     }
     private tbAtY(y: number): number {
-        return saturate(unmix(settings.bottom - 0.05, settings.bottom, y))
-             * saturate(unmix(settings.top + 0.05, settings.top, y));
+        return (settings.snapBottom ? ((y > settings.bottom) ? 1 : 0) : saturate(unmix(settings.bottom - 0.05, settings.bottom, y)))
+             * (settings.snapTop ? ((y < settings.top) ? 1 : 0) : saturate(unmix(settings.top + 0.05, settings.top, y)));
     }
     at(x: number, y: number): number {
         return this.lrAtX(x)
