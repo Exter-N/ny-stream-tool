@@ -158,6 +158,10 @@ section.has-h3 > h3 {
     margin: 0 0.5em;
 }
 
+.horizontal > * {
+    vertical-align: middle;
+}
+
 .vertical {
     text-align: center;
 }

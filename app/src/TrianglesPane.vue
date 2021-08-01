@@ -16,8 +16,8 @@
         <div>
             <div class="columns">
                 <div>
-                    <div><input type="range" v-model="left" min="0" max="1" step="0.01" /> <span class="number3">{{ Math.round(left * 100) }}</span> %</div>
-                    <div><input type="range" class="reverse" v-model="invRight" min="0" max="1" step="0.01" /> <span class="number3">{{ Math.round(invRight * 100) }}</span> %</div>
+                    <div class="horizontal"><input type="range" v-model="left" min="0" max="1" step="0.01" /> <span class="number3">{{ Math.round(left * 100) }}</span> %</div>
+                    <div class="horizontal"><input type="range" class="reverse" v-model="invRight" min="0" max="1" step="0.01" /> <span class="number3">{{ Math.round(invRight * 100) }}</span> %</div>
                 </div>
                 <div class="separator"></div>
                 <div class="vertical"><div class="vertical-range-host"><input type="range" class="reverse" v-model="invTop" min="0" max="1" step="0.01" /></div><div><span class="number3">{{ Math.round(invTop * 100) }}</span> %</div></div>

@@ -21,6 +21,9 @@ const GRAVITY = 9.81 * 20 * MASS;
 let windMaxStrength = 3;
 let windAngleOffset = 0;
 
+const SPRING_COMPRESSION_RESTORATION = 0.5;
+const SPRING_TENSION_RESTORATION = 0.8;
+
 const FLOOR_Y = -200;
 
 const geometry = new BufferGeometry();
@@ -302,11 +305,11 @@ function satisfySpringConstraints(): void {
             currentPositions[index2 + 2] - currentPositions[index1 + 2]);
 
         const currentDist = diff.length();
-        if (0 === currentDist) {
+        if (0 === currentDist || distance === currentDist) {
             continue;
         }
         correction.copy(diff);
-        correction.multiplyScalar((1 - distance / currentDist) * 0.5);
+        correction.multiplyScalar((1 - distance / currentDist) * ((currentDist < distance) ? SPRING_COMPRESSION_RESTORATION : SPRING_TENSION_RESTORATION) * 0.5);
         correction.x = Math.max(-distance, Math.min(distance, correction.x));
         correction.y = Math.max(-distance, Math.min(distance, correction.y));
         correction.z = Math.max(-distance, Math.min(distance, correction.z));
